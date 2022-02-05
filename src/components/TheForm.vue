@@ -1,16 +1,29 @@
 <template>
   <form @submit.prevent="submitForm">
-    <div class="form-control">
+    <div class="form-control" :class="{ invalid: userNameValid === 'invalid' }">
       <label for="user-name">Your Name</label>
-      <input id="user-name" name="user-name" v-model="userName" type="text" />
+      <input
+        id="user-name"
+        name="user-name"
+        v-model="userName"
+        type="text"
+        @blur="validateInput"
+      />
+      <p v-if="isUsernameValid">Please enter a valid name</p>
     </div>
     <div class="form-control">
       <label for="age">Your Age (Years)</label>
-      <input id="age" name="age" type="number" />
+      <input
+        id="age"
+        name="age"
+        type="number"
+        v-model="userAge"
+        ref="ageInput"
+      />
     </div>
     <div class="form-control">
       <label for="referrer">How did you hear about us?</label>
-      <select id="referrer" name="referrer">
+      <select id="referrer" name="referrer" v-model="referrer">
         <option value="google">Google</option>
         <option value="wom">Word of mouth</option>
         <option value="newspaper">Newspaper</option>
@@ -19,32 +32,66 @@
     <div class="form-control">
       <h2>What are you interested in?</h2>
       <div>
-        <input id="interest-news" name="interest" type="checkbox" />
+        <input
+          id="interest-news"
+          name="interest"
+          type="checkbox"
+          value="news"
+        />
         <label for="interest-news">News</label>
       </div>
       <div>
-        <input id="interest-tutorials" name="interest" type="checkbox" />
+        <input
+          id="interest-tutorials"
+          name="interest"
+          type="checkbox"
+          v-model="interest"
+          value="tutorials"
+        />
         <label for="interest-tutorials">Tutorials</label>
       </div>
       <div>
-        <input id="interest-nothing" name="interest" type="checkbox" />
+        <input
+          id="interest-nothing"
+          value="Nothing"
+          name="interest"
+          type="checkbox"
+        />
         <label for="interest-nothing">Nothing</label>
       </div>
     </div>
     <div class="form-control">
       <h2>How do you learn?</h2>
       <div>
-        <input id="how-video" name="how" type="radio" />
+        <input
+          id="how-video"
+          name="how"
+          type="radio"
+          value="video"
+          v-model="how"
+        />
         <label for="how-video">Video Courses</label>
       </div>
       <div>
-        <input id="how-blogs" name="how" type="radio" />
+        <input id="how-blogs" name="how" value="blogs" type="radio" />
         <label for="how-blogs">Blogs</label>
       </div>
       <div>
-        <input id="how-other" name="how" type="radio" />
+        <input id="how-other" name="how" type="radio" value="other" />
         <label for="how-other">Other</label>
       </div>
+    </div>
+    <div class="form-control">
+      <rating-control v-model="rating"></rating-control>
+    </div>
+    <div class="form-control">
+      <input
+        type="checkbox"
+        name="confirm-terms"
+        id="confirm-terms"
+        v-model="confirm"
+      />
+      <label for="confirm-terms">Agree to terms of use?</label>
     </div>
     <div>
       <button>Save Data</button>
@@ -53,16 +100,47 @@
 </template>
 
 <script>
+import RatingControl from './RatingControl.vue';
 export default {
+  components: { RatingControl },
   data() {
     return {
       userName: '',
+      userAge: null,
+      referrer: 'wom',
+      interest: [],
+      how: [],
+      confirm: false,
+      userNameValid: 'pending',
+      rating: null,
     };
   },
+  computed: {
+    isUsernameValid() {
+      return this.userNameValid == 'invalid';
+    },
+  },
   methods: {
+    validateInput() {
+      if (this.userName === '') {
+        this.userNameValid = 'invalid';
+      } else {
+        this.userNameValid = 'valid';
+      }
+    },
     submitForm() {
-      console.log('USERNAME', this.userName);
+      console.log({ interest: this.interest });
+      console.log({ how: this.how });
+      console.log('Confirm');
+      console.log(this.confirm);
+      console.log('Rating');
+      console.log(this.rating);
       this.userName = '';
+      this.userAge = null;
+      this.referrer = 'wom';
+      this.interest = [];
+      this.how = [];
+      this.rating = null;
     },
   },
 };
@@ -80,6 +158,14 @@ form {
 
 .form-control {
   margin: 0.5rem 0;
+}
+
+.form-control.invalid input {
+  border-color: red;
+}
+
+.form-control.invalid label {
+  color: red;
 }
 
 label {
